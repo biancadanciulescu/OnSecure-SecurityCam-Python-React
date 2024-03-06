@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcam Feed</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #2c3e50; 
+            font-family: 'Arial', sans-serif;
+            color: #ecf0f1; 
+        }
+
+        h1 {
+            color: #3498db;
+        }
+
+        #webcam-container {
+            position: relative;
+            width: 80%;
+            max-width: 640px;
+            margin-top: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        #webcam-feed {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        #webcam-frame {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 10px solid #3498db;
+            box-sizing: border-box;
+        }
+
+        #motion-message {
+            margin-top: 20px;
+            font-size: 24px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Webcam Feed</h1>
+    <div id="webcam-container">
+        <div id="webcam-frame"></div>
+        <video id="webcam-feed" autoplay playsinline></video>
+    </div>
+    <div id="motion-message"></div>
+    <script>
+        const video = document.getElementById('webcam-feed');
+        const motionMessage = document.getElementById('motion-message');
+
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
+                video.srcObject = stream;
+
+                setInterval(() => {
+                    fetch("/api/data")
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.motion_detected) {
+                                motionMessage.textContent = "MIȘCARE DETECTATĂ!";
+                            } else {
+                                motionMessage.textContent = "NICIO MIȘCARE.";
+                            }
+                        });
+                }, 1000);
+            })
+            .catch((error) => {
+                console.error('Error accessing webcam:', error);
+            });
+    </script>
+</body>
+</html>
